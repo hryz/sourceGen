@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SBTech.Trading.Data.Odds.NextGen
+namespace db
 {
     public class Index<TK, TV, TI> : IIndexReader<TV, TI> , IIndexWriter<TK, TV>
         where TV : IKey<TK>

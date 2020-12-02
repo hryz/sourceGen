@@ -10,14 +10,14 @@ internal static class MemberGenerator
     // 2 = prop index
     // 3 = prop name
     private const string Prop1Template = @"
-    public static IndexBuilder<{1},{0}> FindBy{3}(this List<{0}>s, {1} x) => new()
+    public static IndexBuilderR<{1},TK,{0}> FindBy{3}<TK>(this ICacheReader<TK, {0}>s, {1} x) => new()
     {{
         Source = s,
         Field1Index = {2}, Field1Value = x
     }};";
 
     private const string Prop2Template = @"
-    public static IndexBuilder<T, {1}, {0}> AndBy{3}<T>(in this IndexBuilder<T,{0}> it, {1} x) => new()
+    public static IndexBuilderR<T, {1}, TK, {0}> AndBy{3}<T,TK>(in this IndexBuilderR<T,TK,{0}> it, {1} x) => new()
     {{
         Source = it.Source,
         Field1Index = it.Field1Index, Field1Value = it.Field1Value,
@@ -25,7 +25,7 @@ internal static class MemberGenerator
     }};";
 
     private const string Prop3Template = @"
-    public static IndexBuilder<T1, T2, {1}, {0}> AndBy{3}<T1, T2>(in this IndexBuilder<T1, T2, {0}> it, {1} x) => new()
+    public static IndexBuilderR<T1, T2, {1}, TK, {0}> AndBy{3}<T1, T2, TK>(in this IndexBuilderR<T1, T2, TK, {0}> it, {1} x) => new()
     {{
         Source = it.Source,
         Field1Index = it.Field1Index, Field1Value = it.Field1Value,
@@ -37,7 +37,7 @@ internal static class MemberGenerator
     {
         var modelName = typeSymbol.Name;
         var modelType = typeSymbol.OriginalDefinition.Name;
-        var modelNameSpace = typeSymbol.ContainingNamespace.Name;
+        var modelNameSpace = typeSymbol.ContainingNamespace.ToDisplayString();
         
         var classDeclaration = 
             ClassDeclaration(modelName + "Extensions")
@@ -47,7 +47,7 @@ internal static class MemberGenerator
         {
             var method1String = string.Format(Prop1Template, modelType, type.Name, idx, name);
             var method2String = string.Format(Prop2Template, modelType, type.Name, idx, name);
-            var method3String = string.Format(Prop3Template, modelType, type.Name, idx, name);;
+            var method3String = string.Format(Prop3Template, modelType, type.Name, idx, name);
             classDeclaration = classDeclaration.AddMembers(
                 ParseMemberDeclaration(method1String)!,
                 ParseMemberDeclaration(method2String)!,
@@ -57,8 +57,8 @@ internal static class MemberGenerator
         var syntaxFactory = CompilationUnit()
             .AddUsings(
                 UsingDirective(ParseName("System")),
-                UsingDirective(ParseName("System.Collections.Generic")))
-                //UsingDirective(ParseName(modelNameSpace)))
+                UsingDirective(ParseName("System.Collections.Generic")),
+                UsingDirective(ParseName("db")))
             .AddMembers(
                 NamespaceDeclaration(ParseName(modelNameSpace)).NormalizeWhitespace()
                     .AddMembers(classDeclaration));

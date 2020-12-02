@@ -1,6 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using db;
 
-namespace SBTech.Trading.Data.Odds.NextGen
+namespace net5.InMemoryStore.ClientCode
 {
     public class Root
     {
@@ -18,9 +19,10 @@ namespace SBTech.Trading.Data.Odds.NextGen
             //from the client side
             var reader = (IInMemoryDatabaseReader) store;
             var m0 = reader.ModelA.FindByKey(1);
-            var m1 = reader.ModelA.FindBy(x => x.A, 1).ToArray();
-            var m2 = reader.ModelA.FindBy(x => x.B, "b2", x => x.C, false).ToArray();
-            
+            var m1 = reader.ModelA.FindByA(1).Now();
+            var m2 = reader.ModelA.FindByB("b2").AndByC(false).Now();
+
         }
     }
+    
 }

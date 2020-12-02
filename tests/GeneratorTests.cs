@@ -6,6 +6,7 @@ using System.Runtime.Loader;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using db;
 using FluentAssertions;
 using gen;
 using Microsoft.CodeAnalysis;
@@ -28,45 +29,53 @@ namespace tests
 using System;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
+using db;
 
-namespace net5 
+namespace net5.InMemoryStore.ClientCode 
 {
-
-    [DataContract]
-    public class SourceModel
+    public interface IInMemoryDatabaseReader
     {
-        [DataMember(Order = 0)] public int A { get; init; }
-        [DataMember(Order = 1)] public string? B { get; init; }
-        [DataMember(Order = 2)] public bool C { get; init; }
-        [DataMember(Order = 3)] public DateTime D { get; init; }
+        ICacheReader<int, ModelA> ModelA { get; }
+        ICacheReader<int, ModelB> ModelB { get; }
     }
     
-    public struct IndexBuilder<T1, TModel>
+    public interface IInMemoryDatabaseWriter
     {
-        public List<TModel> Source { get; init; }
-        public int Field1Index { get; init; }
-        public T1 Field1Value { get; init; }
-        public List<TModel> Now() => throw new NotImplementedException(); //call internal logic of index with accumulated params
+        ICacheWriter<int, ModelA> ModelA { get; }
+        ICacheWriter<int, ModelB> ModelB { get; }
     }
-    public struct IndexBuilder<T1,T2,TModel>
+
+    [DataContract]
+    public class ModelA : IKey<int>
     {
-        public List<TModel> Source { get; init; }
-        public int Field1Index { get; init; } 
-        public T1 Field1Value { get; init; }
-        public int Field2Index { get; init; } 
-        public T2 Field2Value { get; init; }
-        public List<TModel> Now() => throw new NotImplementedException(); //call internal logic of index with accumulated params
+        public int Key => A;
+        [DataMember(Order = 0)] public int A { get; set; }
+        [DataMember(Order = 1)] public string B { get; set; } = """";
+        [DataMember(Order = 2)] public bool C { get; set; }
     }
-    public struct IndexBuilder<T1,T2,T3, TModel>
+
+    [DataContract]
+    public class ModelB : IKey<int>
     {
-        public List<TModel> Source { get; init; }
-        public int Field1Index { get; init; } 
-        public T1 Field1Value { get; init; }
-        public int Field2Index { get; init; } 
-        public T2 Field2Value { get; init; }
-        public int Field3Index { get; init; } 
-        public T3 Field3Value { get; init; }
-        public List<TModel> Now() => throw new NotImplementedException(); //call internal logic of index with accumulated params
+        public int Key => A;
+        [DataMember(Order = 0)] public int A { get; set; }
+        [DataMember(Order = 1)] public bool B { get; set; }
+        [DataMember(Order = 2)] public bool C { get; set; }
+        [DataMember(Order = 3)] public bool D { get; set; }
+    }
+
+    public class Root
+    {
+        public void Run()
+        {
+            var store = new object();
+            
+            //from the client side
+            var reader = (IInMemoryDatabaseReader) store;
+            var m0 = reader.ModelA.FindByKey(1);
+            var m1 = reader.ModelA.FindByA(1).Now();
+            var m2 = reader.ModelA.FindByB(""b2"").AndByC(false).Now();
+        }
     }
 }
 ";
@@ -79,7 +88,7 @@ namespace net5
             result.Success.Should().BeTrue();
             var ctx = new AssemblyLoadContext(nameof(ItShallBuildSuccessfully), true);
             var loadedAssembly = ctx.LoadFromAssemblyPath(outputAssembly);
-            loadedAssembly.GetType("net5.SourceModelExtensions")
+            loadedAssembly.GetType("net5.InMemoryStore.ClientCode.ModelAExtensions")
                 .Should().NotBeNull()
                 .And.Subject.GetMember("FindByA").Length.Should().BeGreaterOrEqualTo(1);
         }
@@ -101,8 +110,8 @@ namespace net5
                     MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "netstandard.dll")),
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll")),
-                    MetadataReference.CreateFromFile(typeof(DataContractAttribute).Assembly.Location)
-                    //MetadataReference.CreateFromFile(typeof(GenerateDataBuilderAttribute).Assembly.Location)
+                    MetadataReference.CreateFromFile(typeof(DataContractAttribute).Assembly.Location),
+                    MetadataReference.CreateFromFile(typeof(Cache<,>).Assembly.Location)
                 })
                 .WithAnalyzerReferences(new[]{
                     new AnalyzerFileReference(typeof(MySourceGenerator).Assembly.Location, new DataBuilderGeneratorAnalyzerLoader())

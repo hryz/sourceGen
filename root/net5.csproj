@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="../fs/fs.fsproj" />
     <ProjectReference Include="../gen/gen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\db\db.csproj" />
     
   </ItemGroup>
 
