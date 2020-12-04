@@ -1,5 +1,5 @@
-using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
@@ -26,9 +26,7 @@ namespace tests
         {
             // Given
             string sourceCode = @"
-using System;
 using System.Runtime.Serialization;
-using System.Collections.Generic;
 using db;
 
 namespace net5.InMemoryStore.ClientCode 
@@ -37,18 +35,12 @@ namespace net5.InMemoryStore.ClientCode
     {
         ICacheReader<int, ModelA> ModelA { get; }
         ICacheReader<int, ModelB> ModelB { get; }
-    }
-    
-    public interface IInMemoryDatabaseWriter
-    {
-        ICacheWriter<int, ModelA> ModelA { get; }
-        ICacheWriter<int, ModelB> ModelB { get; }
-    }
+    }    
 
     [DataContract]
     public class ModelA : IKey<int>
     {
-        public int Key => A;
+        int IKey<int>.Key => A;
         [DataMember(Order = 0)] public int A { get; set; }
         [DataMember(Order = 1)] public string B { get; set; } = """";
         [DataMember(Order = 2)] public bool C { get; set; }
@@ -85,12 +77,17 @@ namespace net5.InMemoryStore.ClientCode
             var result = await WhenTheSourceCodeIsCompiled(sourceCode, outputAssembly);
 
             // Then
-            result.Success.Should().BeTrue();
+            result.Success.Should().BeTrue(result.ToString());
             var ctx = new AssemblyLoadContext(nameof(ItShallBuildSuccessfully), true);
             var loadedAssembly = ctx.LoadFromAssemblyPath(outputAssembly);
-            loadedAssembly.GetType("net5.InMemoryStore.ClientCode.ModelAExtensions")
+            
+            loadedAssembly.GetType("net5.InMemoryStore.ClientCode.ModelAReadExtensions")
                 .Should().NotBeNull()
                 .And.Subject.GetMember("FindByA").Length.Should().BeGreaterOrEqualTo(1);
+            
+            loadedAssembly.GetType("net5.InMemoryStore.ClientCode.ModelAWriteExtensions")
+                .Should().NotBeNull()
+                .And.Subject.GetMember("IndexByA").Length.Should().BeGreaterOrEqualTo(1);
         }
 
         private async Task<EmitResult> WhenTheSourceCodeIsCompiled(string sourceCode, string outputAssembly, [CallerMemberName] string compilationAssemblyName = "TestCompilation")
@@ -114,7 +111,7 @@ namespace net5.InMemoryStore.ClientCode
                     MetadataReference.CreateFromFile(typeof(Cache<,>).Assembly.Location)
                 })
                 .WithAnalyzerReferences(new[]{
-                    new AnalyzerFileReference(typeof(MySourceGenerator).Assembly.Location, new DataBuilderGeneratorAnalyzerLoader())
+                    new AnalyzerFileReference(typeof(DbQueryGenerator).Assembly.Location, new DataBuilderGeneratorAnalyzerLoader())
                     });
 
             var compilation = await new AdhocWorkspace(host)
@@ -136,7 +133,7 @@ namespace net5.InMemoryStore.ClientCode
 
             public Assembly LoadFromPath(string fullPath)
             {
-                return typeof(MySourceGenerator).Assembly;
+                return typeof(DbQueryGenerator).Assembly;
             }
         }
     }

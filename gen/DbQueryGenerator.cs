@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace gen
 {
     [Generator]
-    public class MySourceGenerator : ISourceGenerator
+    public class DbQueryGenerator : ISourceGenerator
     {
         public void Initialize(GeneratorInitializationContext context)
         {
@@ -25,11 +25,17 @@ namespace gen
             foreach (var candidateTypeNode in receiver.Candidates)
             {
                 var semanticModel = compilation.GetSemanticModel(candidateTypeNode.SyntaxTree);
-                if (ModelExtensions.GetDeclaredSymbol(semanticModel, candidateTypeNode) is ITypeSymbol typeSymbol)
+                if (semanticModel.GetDeclaredSymbol(candidateTypeNode) is ITypeSymbol typeSymbol)
                 {
+                    var keyType = ExtractKeyType(typeSymbol);
+                    if(keyType == null) 
+                        continue; // no implementation of IKey
+                    
                     var props = ExtractFieldIndexes(typeSymbol).ToArray();
-                    var @class = MemberGenerator.CreateClass(typeSymbol, props);
-                    context.AddSource(typeSymbol.Name + "Extensions", SourceText.From(@class, Encoding.UTF8));
+                    var readerExt = ReaderBuildersGenerator.CreateClass(typeSymbol, keyType, props);
+                    var writerExt = WriterBuildersGenerator.CreateClass(typeSymbol, keyType, props);
+                    context.AddSource(typeSymbol.Name + "ReadExtensions", SourceText.From(readerExt, Encoding.UTF8));
+                    context.AddSource(typeSymbol.Name + "WriteExtensions", SourceText.From(writerExt, Encoding.UTF8));
                 }
             }
         }
@@ -53,6 +59,31 @@ namespace gen
 
                 yield return ((int)order.Value.Value!, prop.Type, prop.Name);
             }
+        }
+
+        private static ITypeSymbol ExtractKeyType(ITypeSymbol candidate)
+        {
+            var props = candidate.GetMembers().OfType<IPropertySymbol>();
+            foreach (var prop in props)
+            {
+                //explicit impl
+                if (prop.ExplicitInterfaceImplementations.Length > 0)
+                {
+                    var impl = prop.ExplicitInterfaceImplementations[0];
+                    if (impl.ContainingType.Name.Equals("IKey", StringComparison.Ordinal)
+                        && impl.Name.Equals("Key", StringComparison.Ordinal))
+                    {
+                        return impl.Type;
+                    }
+                }
+                //implicit impl
+                if (prop.Name.Equals("Key", StringComparison.Ordinal))
+                {
+                    return prop.Type;
+                }
+            }
+
+            return null;
         }
     }
 

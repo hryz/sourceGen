@@ -10,8 +10,8 @@ namespace net5.InMemoryStore.ClientCode
                 .IndexByA().Register()
                 .IndexByB().AndByC().Register();
 
-            _modelBs = new Cache<int, ModelB>();
-                //.WithIndex(x => x.B, x => x.C, x => x.D);
+            _modelBs = new Cache<int, ModelB>()
+                .IndexByB().AndByC().AndByD().Register();
         }
 
         //private

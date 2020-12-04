@@ -21,7 +21,6 @@ namespace net5.InMemoryStore.ClientCode
             var m0 = reader.ModelA.FindByKey(1);
             var m1 = reader.ModelA.FindByA(1).Now();
             var m2 = reader.ModelA.FindByB("b2").AndByC(false).Now();
-
         }
     }
     
