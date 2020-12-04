@@ -1,8 +1,8 @@
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using db;
 
-namespace net5.InMemoryStore.ClientCode
+namespace client
 {
     [DataContract]
     public class ModelA : IKey<int>
@@ -11,7 +11,7 @@ namespace net5.InMemoryStore.ClientCode
         [DataMember(Order = 0)] public int A { get; set; }
         [DataMember(Order = 1)] public string B { get; set; } = "";
         [DataMember(Order = 2)] public bool C { get; set; }
-        [DataMember(Order = 3)] public ImmutableSortedSet<int> Bla { get; set; } = ImmutableSortedSet<int>.Empty;
+        [DataMember(Order = 3)] public List<int> Bla { get; set; } = new();
     }
     
     [DataContract]

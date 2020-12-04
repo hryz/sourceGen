@@ -1,6 +1,6 @@
 using db;
 
-namespace net5.InMemoryStore.ClientCode
+namespace client
 {
     public interface IInMemoryDatabaseReader
     {

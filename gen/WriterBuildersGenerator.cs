@@ -64,9 +64,9 @@ namespace gen
 
             foreach (var (idx, type, name) in props)
             {
-                var method1String = string.Format(Prop1Template, modelType, type.Name, idx, name, keyType.Name);
-                var method2String = string.Format(Prop2Template, modelType, type.Name, idx, name, keyType.Name);
-                var method3String = string.Format(Prop3Template, modelType, type.Name, idx, name, keyType.Name);
+                var method1String = string.Format(Prop1Template, modelType, type.ToDisplayString(), idx, name, keyType.ToDisplayString());
+                var method2String = string.Format(Prop2Template, modelType, type.ToDisplayString(), idx, name, keyType.ToDisplayString());
+                var method3String = string.Format(Prop3Template, modelType, type.ToDisplayString(), idx, name, keyType.ToDisplayString());
                 classDeclaration = classDeclaration.AddMembers(
                     ParseMemberDeclaration(method1String)!,
                     ParseMemberDeclaration(method2String)!,
@@ -75,7 +75,7 @@ namespace gen
 
             var syntaxFactory = CompilationUnit()
                 .AddUsings(
-                    UsingDirective(ParseName("System")),
+                    //UsingDirective(ParseName("System")),
                     UsingDirective(ParseName("db")))
                 .AddMembers(
                     NamespaceDeclaration(ParseName(modelNameSpace))

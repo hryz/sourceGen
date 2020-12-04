@@ -12,14 +12,14 @@ namespace gen
         // 3 = prop name
         // 4 = key type
         private const string Prop1Template = @"
-    public static IndexBuilderR<{1},{4},{0}> FindBy{3}<{4}>(this ICacheReader<{4}, {0}>s, {1} x) => new()
+    public static IndexBuilderR<{1},{4},{0}> FindBy{3}(this ICacheReader<{4}, {0}>s, {1} x) => new()
     {{
         Source = s,
         Field1Index = {2}, Field1Value = x
     }};";
 
         private const string Prop2Template = @"
-    public static IndexBuilderR<T, {1}, {4}, {0}> AndBy{3}<T,{4}>(in this IndexBuilderR<T,{4},{0}> it, {1} x) => new()
+    public static IndexBuilderR<T, {1}, {4}, {0}> AndBy{3}<T>(in this IndexBuilderR<T,{4},{0}> it, {1} x) => new()
     {{
         Source = it.Source,
         Field1Index = it.Field1Index, Field1Value = it.Field1Value,
@@ -27,7 +27,7 @@ namespace gen
     }};";
 
         private const string Prop3Template = @"
-    public static IndexBuilderR<T1, T2, {1}, {4}, {0}> AndBy{3}<T1, T2, {4}>(in this IndexBuilderR<T1, T2, {4}, {0}> it, {1} x) => new()
+    public static IndexBuilderR<T1, T2, {1}, {4}, {0}> AndBy{3}<T1, T2>(in this IndexBuilderR<T1, T2, {4}, {0}> it, {1} x) => new()
     {{
         Source = it.Source,
         Field1Index = it.Field1Index, Field1Value = it.Field1Value,
@@ -50,9 +50,9 @@ namespace gen
 
             foreach (var (idx, type, name) in props)
             {
-                var method1String = string.Format(Prop1Template, modelType, type.Name, idx, name, keyType.Name);
-                var method2String = string.Format(Prop2Template, modelType, type.Name, idx, name, keyType.Name);
-                var method3String = string.Format(Prop3Template, modelType, type.Name, idx, name, keyType.Name);
+                var method1String = string.Format(Prop1Template, modelType, type.ToDisplayString(), idx, name, keyType.ToDisplayString());
+                var method2String = string.Format(Prop2Template, modelType, type.ToDisplayString(), idx, name, keyType.ToDisplayString());
+                var method3String = string.Format(Prop3Template, modelType, type.ToDisplayString(), idx, name, keyType.ToDisplayString());
                 classDeclaration = classDeclaration.AddMembers(
                     ParseMemberDeclaration(method1String)!,
                     ParseMemberDeclaration(method2String)!,
@@ -61,7 +61,7 @@ namespace gen
 
             var syntaxFactory = CompilationUnit()
                 .AddUsings(
-                    UsingDirective(ParseName("System")),
+                    //UsingDirective(ParseName("System")),
                     UsingDirective(ParseName("db")))
                 .AddMembers(
                     NamespaceDeclaration(ParseName(modelNameSpace))

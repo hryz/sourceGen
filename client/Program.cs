@@ -1,11 +1,8 @@
-﻿using System;
-using db;
-
-namespace net5.InMemoryStore.ClientCode
+namespace client
 {
-    public class Root
+    public static class Program
     {
-        public void Run()
+        public static void Main(string[] args)
         {
             var store = new InMemoryDatabase();
             
@@ -23,5 +20,4 @@ namespace net5.InMemoryStore.ClientCode
             var m2 = reader.ModelA.FindByB("b2").AndByC(false).Now();
         }
     }
-    
 }
