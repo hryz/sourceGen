@@ -5,7 +5,7 @@ namespace db
     public struct IndexBuilderW<T1, TK, TV>
         where TV : IKey<TK>
         where TK : notnull
-        where T1 : notnull
+        where T1 : IEquatable<T1>
     {
         public Cache<TK, TV> Source { get; init; }
         public int Field1Index { get; init; }
@@ -15,8 +15,8 @@ namespace db
     public struct IndexBuilderW<T1,T2,TK, TV>
         where TV : IKey<TK>
         where TK : notnull
-        where T1 : notnull
-        where T2 : notnull
+        where T1 : IEquatable<T1>
+        where T2 : IEquatable<T2>
     {
         public Cache<TK, TV> Source { get; init; }
         public int Field1Index { get; init; } 
@@ -29,9 +29,9 @@ namespace db
     public struct IndexBuilderW<T1,T2,T3, TK, TV>
         where TV : IKey<TK>
         where TK : notnull
-        where T1 : notnull
-        where T2 : notnull
-        where T3 : notnull
+        where T1 : IEquatable<T1>
+        where T2 : IEquatable<T2>
+        where T3 : IEquatable<T3>
     {
         public Cache<TK, TV> Source { get; init; }
         public int Field1Index { get; init; } 

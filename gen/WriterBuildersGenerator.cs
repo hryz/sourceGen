@@ -23,7 +23,7 @@ namespace gen
         private const string Prop2Template = @"
    public static IndexBuilderW<T, {1}, {4}, {0}> AndBy{3}<T>(
             this in IndexBuilderW<T, {4}, {0}> it) 
-            where T : notnull
+            where T : System.IEquatable<T>
             => new()
         {{
             Source = it.Source,
@@ -36,8 +36,8 @@ namespace gen
         private const string Prop3Template = @"
     public static IndexBuilderW<T1, T2, {1}, {4}, {0}> AndBy{3}<T1,T2>(
             this in IndexBuilderW<T1, T2, {4}, {0}> it) 
-            where T1 : notnull
-            where T2 : notnull
+            where T1 : System.IEquatable<T1>
+            where T2 : System.IEquatable<T2>
             => new()
             {{
                 Source = it.Source,

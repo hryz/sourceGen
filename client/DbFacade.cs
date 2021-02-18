@@ -8,10 +8,11 @@ namespace client
         {
             _modelAs = new Cache<int, ModelA>()
                 .IndexByA().Register()
-                .IndexByB().AndByC().Register();
+                .IndexByB().AndByC().Register(); //ordering matters! improvement: sort field positions
 
             _modelBs = new Cache<int, ModelB>()
-                .IndexByB().AndByC().AndByD().Register();
+                .IndexByB().AndByC().AndByD().Register()
+                .IndexByStructField().Register();
         }
 
         //private

@@ -57,6 +57,11 @@ namespace gen
 
                 if (order.Key == null) continue;
 
+                if (!prop.Type.Interfaces.Any(x =>
+                    x.Name.Equals("IEquatable", StringComparison.Ordinal)
+                    && x.TypeArguments.Any(a => SymbolEqualityComparer.Default.Equals(a, prop.Type))))
+                    continue;
+
                 yield return ((int)order.Value.Value!, prop.Type, prop.Name);
             }
         }
