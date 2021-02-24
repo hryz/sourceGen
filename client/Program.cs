@@ -12,7 +12,7 @@ namespace client
             writer.ModelA.Update(1, new ModelA{ A = 1, B = "b2", C = false}); //update
             writer.ModelA.Update(2, new ModelA{ A = 2, B = "z", C = true}); 
             writer.ModelA.Delete(2); //delete
-            writer.ModelB.Update(1, new ModelB{ StructField = new StrKey(1,2)});
+            writer.ModelB.Update(1, new ModelB{ A = 1, StructField = new StrKey(1,2)});
             
             //from the client side
             var reader = (IInMemoryDatabaseReader) store;

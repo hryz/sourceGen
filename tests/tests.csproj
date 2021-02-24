@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\client\client.csproj" />
     <ProjectReference Include="..\db\db.csproj" />
     <ProjectReference Include="..\gen\gen.csproj" />
   </ItemGroup>

@@ -23,7 +23,7 @@ namespace db
         where TKey1 : notnull
         where TKey2 : notnull
     {
-        private readonly ConcurrentDictionary<TKey1, ConcurrentDictionary<TKey2, TValue>> _map = new();
+        private readonly ConcurrentDictionary<TKey1, DetachedHeadMap<TKey2, TValue>> _map = new();
 
         public void AddOrUpdate(TKey1 key1, TKey2 key2, TValue value)
         {
@@ -33,7 +33,7 @@ namespace db
             }
             else
             {
-                _map.TryAdd(key1, new ConcurrentDictionary<TKey2, TValue> {[key2] = value});
+                _map.TryAdd(key1, new DetachedHeadMap<TKey2, TValue> {[key2] = value});
             }
         }
 
