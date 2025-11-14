@@ -1,16 +1,13 @@
-using db;
+namespace client;
 
-namespace client
+public interface IInMemoryDatabaseReader
 {
-    public interface IInMemoryDatabaseReader
-    {
-        ICacheReader<int, ModelA> ModelA { get; }
-        ICacheReader<int, ModelB> ModelB { get; }
-    }
+    ICacheReader<int, ModelA> ModelA { get; }
+    ICacheReader<int, ModelB> ModelB { get; }
+}
     
-    public interface IInMemoryDatabaseWriter
-    {
-        ICacheWriter<int, ModelA> ModelA { get; }
-        ICacheWriter<int, ModelB> ModelB { get; }
-    }
+public interface IInMemoryDatabaseWriter
+{
+    ICacheWriter<int, ModelA> ModelA { get; }
+    ICacheWriter<int, ModelB> ModelB { get; }
 }
